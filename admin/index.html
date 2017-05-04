@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Hotspot Admin Utility Login</title>
+		<link rel="stylesheet" href="css/style.css" media="screen" type="text/css" />
+	    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:400,700">
+	</head>
+	<?php
+		require_once(__DIR__."/config.php");
+		
+		if(isset($_POST["uname"]) && isset($_POST["pword"]))
+		{
+    		//$myusername = ms_escape_string($_POST["uname"]);
+			//$mypassword = ms_escape_string($_POST["pword"]);
+			
+			//if(($myusername === $admin_uname)&&($mypassword === $admin_pword))
+			{
+				echo "Login Approved";
+			}
+		}
+		else
+		{
+			echo "Not Approved";
+		}
+	?>
+	<body>
+		<div class="container">
+			<div id="login">
+				<form action="" method="POST">
+					<fieldset class="clearfix">
+						<p><span class="fontawesome-user"></span><input type="text" name="uname" value="Username" onBlur="if(this.value == '') this.value = 'Username'" onFocus="if(this.value == 'Username') this.value = ''" required></p> <!-- JS because of IE support; better: placeholder="Username" -->
+						<p><span class="fontawesome-lock"></span><input type="password" name="pword" value="Password" onBlur="if(this.value == '') this.value = 'Password'" onFocus="if(this.value == 'Password') this.value = ''" required></p> <!-- JS because of IE support; better: placeholder="Password" -->
+						<p><input type="submit" value="Log In"></p>
+					</fieldset>
+				</form>
+			</div> <!-- end login -->
+		</div>
+	</body>
+</html>

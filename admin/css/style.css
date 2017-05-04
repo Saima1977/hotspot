@@ -1,0 +1,447 @@
+/* CSS Document */
+/* ---------- FONTAWESOME ---------- */
+/* ---------- http://fortawesome.github.com/Font-Awesome/ ---------- */
+/* ---------- http://weloveiconfonts.com/ ---------- */
+@import url(http://weloveiconfonts.com/api/?family=fontawesome);
+/* ---------- FONTAWESOME ---------- */
+[class*="fontawesome-"]:before {
+  font-family: 'FontAwesome', sans-serif;
+}
+
+/* ---------- GENERAL ---------- */
+* {
+  -moz-box-sizing: border-box;
+       box-sizing: border-box;
+}
+*:before, *:after {
+  -moz-box-sizing: border-box;
+       box-sizing: border-box;
+}
+
+body {margin: 0; padding: 0; min-width: 100%!important;}
+.content {width: 100%;}  
+
+h2 {
+  font-family: 'Open Sans', Arial, sans-serif;
+  font-size: 20px;
+  line-height: 2em; 		
+
+ }
+ 
+.form_title
+{
+	color: #184552; 
+}
+
+a {
+  /*color: #eee;*/
+  color: #27748A;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+input {
+  border: none;
+  font-family: 'Open Sans', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5em;
+  padding: 0;
+  -webkit-appearance: none;
+}
+
+p {
+  font-family: 'Open Sans', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5em;
+  margin:10px;
+}
+
+.clearfix {
+  *zoom: 1;
+}
+.clearfix:before, .clearfix:after {
+  content: ' ';
+  display: table;
+}
+.clearfix:after {
+  clear: both;
+}
+
+.container {
+  left: 50%;
+  position: fixed;
+  top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+      -ms-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+}
+
+/* ---------- LOGIN ---------- */
+#login {
+  width: 280px;
+}
+
+#login form span {
+  background-color: #363b41;
+  border-radius: 3px 0px 0px 3px;
+  color: #606468;
+  display: block;
+  float: left;
+  height: 50px;
+  line-height: 50px;
+  text-align: center;
+  width: 50px;
+}
+
+#login form input {
+  height: 50px;
+}
+
+#login form input[type="text"], input[type="password"] {
+  background-color: #3b4148;
+  border-radius: 0px 3px 3px 0px;
+  color: #606468;
+  margin-bottom: 1em;
+  padding: 0 16px;
+  width: 230px;
+}
+
+#login form input[type="submit"] {
+  border-radius: 3px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  background-color: #9297a1;
+  color: #eee;
+  font-weight: bold;
+  margin-bottom: 2em;
+  text-transform: uppercase;
+  width: 280px;
+}
+
+#login form input[type="submit"]:hover {
+  background-color: #b5b7bd;
+}
+
+#login > p {
+  text-align: center;
+}
+
+#login > p span {
+  padding-left: 5px;
+}
+.isa_success {
+    color: #4F8A10;
+    background-color: #DFF2BF;
+}
+.isa_error {
+    color: #D8000C;
+    background-color: #FFBABA;
+}
+.isa_info i, .isa_success i, .isa_warning i, .isa_error i {
+    margin:10px 22px;
+    font-size:2em;
+    vertical-align:middle;
+}
+.overlay {
+    background: rgba(39,62,84,0.82);
+    opacity: .5;
+}
+.header-container {
+    max-width: 100%;
+    height: auto;
+}
+.header-container .txt-container {
+    text-align: center;
+    vertical-align: middle;
+}
+.header-container .txt-container p {
+    padding-top: 30px;
+    padding-bottom: 30px;
+    font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
+    font-size: 50px;
+    color: white;
+    line-height: 65px;
+}
+@import url(http://fonts.googleapis.com/css?family=Open+Sans);
+
+/* STRUCTURE */
+
+#pagewrap {
+	padding: 5px;
+	/*width: 885px;*/
+	width: 985px;
+	margin: 20px auto;
+}
+
+header {
+	height: 50px;
+	padding: 0 15px;
+}
+#content {
+	width: 290px;
+	float: left;
+	padding: 5px 15px;
+}
+
+#middle {
+	width: 294px; /* Account for margins + border values */
+	float: left;
+	padding: 5px 15px;
+	margin: 0px 5px 5px 5px;
+}
+
+#sidebar {
+	width: 270px;
+	padding: 5px 15px;
+	float: left;
+}
+footer {
+	clear: both;
+	padding: 35px 15px;
+}
+
+#log_out {
+	width:88%;
+	margin:0px;
+}
+
+#content_form {
+	/*width: 80%;*/
+	width: auto;
+	padding: 35px 15px;
+	background: #f8f8f8;
+}
+
+/************************************************************************************
+MEDIA QUERIES
+*************************************************************************************/
+/* for 980px or less */
+@media screen and (max-width: 980px) {
+	
+	#pagewrap {
+		width: 94%;
+	}
+	#content {
+		width: 41%;
+		padding: 1% 4%;
+	}
+	#middle {
+		width: 41%;
+		padding: 1% 4%;
+		margin: 0px 0px 5px 5px;
+		float: right;
+	}
+	
+	#sidebar {
+		clear: both;
+		padding: 1% 4%;
+		width: auto;
+		float: none;
+	}
+
+	header, footer {
+		padding: 1% 4%;
+	}
+}
+
+/* for 700px or less */
+@media screen and (max-width: 600px) {
+
+	#content {
+		width: auto;
+		float: none;
+	}
+	#content_form {
+		width: 100%;
+	}		
+	#middle {
+		width: auto;
+		float: none;
+		margin-left: 0px;
+	}
+	#sidebar {
+		width: auto;
+		float: none;
+	}
+
+}
+
+/* for 480px or less */
+@media screen and (max-width: 480px) {
+	#content {
+		width: auto;
+		float: none;
+	}
+	#content_form {
+		width: 100%;
+	}	
+	
+	#middle {
+		width: auto;
+		float: none;
+		margin-left: 0px;
+	}
+	#sidebar {
+		width: auto;
+		float: none;
+	}
+	header {
+		height: auto;
+	}
+	h2{
+		font-size: 1em;
+	}
+	/*#sidebar {
+		display: none;
+	}*/
+
+}
+
+#content {
+	background: #f8f8f8;
+}
+#sidebar {
+	background: #f0efef;
+}
+header, #content, #middle, #sidebar {
+	margin-bottom: 5px;
+}
+
+input[type="button"] {
+    background: #4B99AD;
+    padding: 8px 15px 8px 15px;
+    border: none;
+    color: #fff;
+	margin:0 auto;
+    display:block;	
+}
+
+p span {
+  padding-left: 5px;
+}
+
+.change_form
+{
+    width:auto;
+    margin:auto;
+    font-family: sans-serif;
+    box-shadow: 5px 5px 5px #888888;
+    padding:20px;
+    border:4px solid #27748A;
+}
+
+.change_form h2
+{
+    color:#27748A;
+    font-size:35px;
+    margin:0;
+}
+
+.change_form {
+	font-family: sans-serif;
+    font-size:15px;
+    color:#222222;
+}
+
+.change_form div
+{
+    margin-top:10px;
+}
+
+.change_form input, select
+{
+    width:100%;
+    border:2px solid #9ECEDB;
+    padding:3px 5px;
+}
+
+.change_form label
+{
+    font-weight:bold;
+    font-size:12px;
+    color:#184552;
+}
+
+.change_form button
+{
+    background-color: #9ECEDB;
+    color: #184552;
+    cursor:pointer;
+}
+
+.change_form button:hover
+{
+    background-color: #CBEAF2;
+}
+
+.required
+{
+    color:#dd6666;
+}
+
+.hide{
+	display:none;
+}
+
+#login_status
+{
+	border-collapse: collapse;
+}
+
+#login_status td
+{
+	 border: 1px solid #27748A;
+	 font-size:12px;
+}
+
+#login_status td:not([name=td_pre])
+{
+	text-align:center;
+}
+
+#account_status
+{
+	border-collapse: collapse;
+	margin-top:10%;
+	font-size:12px;
+	font-family: sans-serif;
+	color: #184552;
+}
+
+#account_status td
+{
+	 border: 1px solid #27748A; 
+	 text-align:center;
+}
+
+#right_div #logout
+{
+	text-align:right;
+}
+
+div.centered 
+{
+    text-align: center;
+}
+
+div.centered table 
+{
+    margin: 0 auto; 
+    text-align: left;
+}
+
+div.centered table th
+{
+    padding: 10px;
+}
+
+#footer_table td 
+{
+    height: 50px; 
+    width:50px;
+    text-align:center; 
+    vertical-align:middle;
+}

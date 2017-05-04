@@ -67,6 +67,49 @@ function formatSizeUnits($bytes)
     return $bytes;
 }
 
+function subtract_time_from_current($date_str)
+{
+	date_default_timezone_set('Australia/Sydney');
+	$arr = array();
+	preg_match_all('!\d+!', $date_str, $matches);
+	preg_match_all('![a-zA-Z]+!', $date_str, $alphas);
+
+	foreach($alphas as $index => $code)
+	{
+		foreach($code as $key=>$val)
+		{
+			$arr[$val] = $matches[$index][$key];
+		}
+	}
+	$date = new DateTime();
+
+	foreach($arr as $key=>$val)
+	{
+        if($key == 'w')
+        {
+                date_sub($date,date_interval_create_from_date_string($val." weeks"));
+        }
+        if($key == 'd')
+        {
+                date_sub($date,date_interval_create_from_date_string($val." days"));
+        }
+        if($key == 'h')
+        {
+                date_sub($date,date_interval_create_from_date_string($val." hours"));
+        }
+        if($key == 'm')
+        {
+                date_sub($date,date_interval_create_from_date_string($val." minutes"));
+        }
+        if($key == 's')
+        {
+                date_sub($date,date_interval_create_from_date_string($val." seconds"));
+        }
+	}
+	
+	return $date->format('Y-m-d h:i:s');	
+}
+
 function debugTextLogger($logContent) 
 {
 	if (stripos(PHP_OS, 'win') === 0) 
@@ -680,22 +723,6 @@ function delete_old_premium_db()
 	mysqli_close($link);		
 }
 
-function delete_inactive_db()
-{
-	$link = mysqli_connect(HOTSPOT_DB_HOST,HOTSPOT_DB_USER,HOTSPOT_DB_PW,HOTSPOT_DB);
-
-	// Execute the query.
-	$query = mysqli_query($link, "INSERT INTO hotspot_archive (SELECT * FROM ".HOTSPOT_TABLE." WHERE status = 'D' AND active = 0");
-    $query = mysqli_query($link, "DELETE FROM hotspot_log WHERE status = 'D' AND active = 0");
-    
-	if(!$query) 
-	{ 
-		die(mysqli_error()); 
-	} 
-	
-	mysqli_close($link);		
-}
-
 function delete_old_device_db()
 {
 	$link = mysqli_connect(HOTSPOT_DB_HOST,HOTSPOT_DB_USER,HOTSPOT_DB_PW,HOTSPOT_DB);
@@ -844,7 +871,7 @@ function get_hotspot_hotel($ip_addr)
 			// output data of each row
 			while($row = mysqli_fetch_assoc($result)) 
 			{
-				//$hotel_code .= $row['lower_range']." - ".$row['upper_range']." - ".$ip_addr."\n";
+				$hotel_code .= $row['lower_range']." - ".$row['upper_range']." - ".$ip_addr."\n";
 				if(version_compare($row['lower_range'], $ip_addr) + version_compare($ip_addr, $row['upper_range']) === -2) 
 				{
 					$hotel_code = $row['hotel_id'];

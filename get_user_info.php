@@ -111,24 +111,6 @@ if($result != FALSE)
 
 		$bytes = convertToBytes($rate_plan);
 		echo "Number of Bytes: ".$bytes."<br/>";
-
-		//echo "Adding User to Hotspot.....<br/>";
-		//$user_list = add_user_to_hotspot(strtolower($last_name),$bytes,$timelimit,$mac);
-		//$user_list = list_hotspot_users();
-		//$user_list = list_hotspot_active_users();
-		
-		//echo "Logging in to Hotspot.....<br/>";
-		//$user_list = login_to_hotspot(strtolower($last_name),$mac,$ip_addr);
-		//$user_list = find_hotspot_user(strtolower($last_name));
-		//$user_list = find_hotspot_active_user(strtolower($last_name));
-		//$user_list = disable_hotspot_mac_user($mac);
-		//$user_list = disable_hotspot_user_name(strtolower($last_name));
-
-		//$user_list = remove_hotspot_active_user(strtolower($last_name));
-		//$user_list = remove_hotspot_user_name(strtolower($last_name));
-		//$user_list = remove_hotspot_user_name("Bang");
-		//header("Location: $referrer"); 
-		//exit(0);		
 		
 		echo "<pre>";
 		print_r($user_list);

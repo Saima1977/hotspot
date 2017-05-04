@@ -1,18 +1,5 @@
 <html>
 <head>
-    <script>
-		"use strict";
-	function submitForm(oFormElement)
-	{
-		var xhr = new XMLHttpRequest();
-		xhr.onload = function(){ alert (xhr.responseText); }
-		xhr.open (oFormElement.method, oFormElement.action, true);
-		xhr.send (new FormData (oFormElement));
-		window.close();
-		return false;
-	}
-		
-	</script>
 	<style type="text/css"> 	
 				/* * Gridism * A simple, responsive, and handy CSS grid by @cobyism * https://github.com/cobyism/gridism */        
 				/* Preserve some sanity */                
@@ -188,7 +175,7 @@
 					display: none !important;        
 				}        
 				/* Responsive Stuff */        	
-				@media screen and (max-width: 800px) 
+				@media screen and (max-width: 800px)
 				{            
 					/* Stack anything that isn’t full-width on smaller screens      
 					and doesn"t provide the no-stacking-on-mobiles class it was originally 	568px, but it was too small*/            
@@ -364,119 +351,244 @@
 					}			        
 				}
 <?php
+session_start();
 require_once ('additional_functions.php');
 require_once ('mikrotik_functions.php');
 
+$reduced_speed = "";
+$remain_bytes = "";
+$total_bytes = 0;
+$logout = 1;
+
+if(isset($_POST['Next']) && ($_POST['Next'] == "LOGOUT"))
+{
+	$user = hotspot_rows($_POST['last_id'], $_POST['mac_add']);
+	//$user_found = $_POST['last_id']."-".$_POST['mac_add'];
+	//$user_list = remove_hotspot_active_user($user_found);
+	$user_list = remove_hotspot_active_user($_POST['mac_add']);	
+	disconnect_hotspot_user($_POST['mac_add']);
+	debugTextLogger("USERNAME FOR DISCONNECT");
+	debugTextLogger($user_found);	
+	$logout = 0;
+	$message = "You have successfully logged out.";
+	session_destroy();
+}
+else
 if(isset($_POST['room_no']))
 {
+	debugTextLogger($_POST['room_no']);
+	debugTextLogger("BROWSER REFRESHED");
+	debugTextLogger($_POST['mac']);
+	debugTextLogger($_POST['ipaddr']);
+	debugTextLogger(implode("-",$_SESSION));
+
+	$_SESSION['mac_address'] = $_POST['mac'];
 	$lname = $_POST['lname'];
 	$room_no = $_POST['room_no'];
 	$mac = $_POST['mac'];
 	$ip_addr = $_POST['ipaddr'];
 	$referrer = $_POST['referrer'];
-	$hotel_no = "";	
-
-	$Web_Service_URL = MERITON_API_URL.'/?hotel='.$hotel_no.'&room='.$room_no;
-
-	debugTextLogger("$room_no Starting cURL call to Meriton API ".$Web_Service_URL);
+	$hotel_no = "";
+	$user_name = strtoupper($lname)."-".$mac;
+	$last_name = $lname;
 	
-	// Init the cURL session
-	$result = postCurl($Web_Service_URL);
-}
-debugTextLogger($result);
-
-if($result != FALSE)
-{
-	$xml=simplexml_load_string($result) or die("Error: Cannot create object");
-
-	foreach($xml as $key=>$val)
+	if(($_POST['room_no'] == "9999")&&(strtoupper($_POST['lname']) == "TEMP"))
 	{
-		foreach($val as $a=>$b)
+		$rate_plan = "2GB";
+		$bytes = 2147483648;
+		
+		$_SESSION['status'] = "ACTIVE";
+		$find_user = find_hotspot_user($mac);
+		//$find_user = find_hotspot_user($user_name);
+		debugTextLogger("FIND USER IN HOTSPOT");
+		debugTextLogger(serialize($find_user));			
+		
+		if(empty($find_user))
 		{
-			switch($a)
-			{
-				case "FirstNames":
-					$first_name = $b;
-					break;				
-				case "LastName":
-					$last_name = $b;
-					break;
-				case "RatePlan":
-					$rate_plan = $b;
-					break;
-				case "Arrival":
-					$arrival = $b;
-					break;
-				case "Departure":
-					$departure = $b;
-					break;
-			}
+			$timelimit = '1d';
+			$user_list = add_user_to_hotspot($mac,$bytes,$timelimit,$mac);
+			//$user_list = add_user_to_hotspot($user_name,$bytes,$timelimit,$mac);
+			debugTextLogger("ADD USER TO HOTSPOT");
+			debugTextLogger(serialize($user_list));	
 		}
+
+		$log_arr = array(
+							"remote_addr" => $ip_addr,
+							"mac" => $mac,						
+							"user_name" => $user_name,
+							"room_no" => $room_no,
+							"first_name" => $first_name,
+							"last_name" => $last_name,
+							"rate_plan" => $rate_plan,
+							"arrival" => date("Y-m-d H:i:s",strtotime($arrival)),
+							"departure" => date("Y-m-d H:i:s",strtotime($departure)),
+							"status" => "A"
+						);	
+
+		$reply = log_hotspot_user($log_arr);
+		$_SESSION['status'] = "ACTIVE";	
+	}
+				
+	if(!isset($_SESSION['status']))
+	{	
+		$hotel_code = get_hotspot_hotel($ip_addr);
+		debugTextLogger("HOTEL CODE");
+		debugTextLogger($hotel_code);
+		//$hotel_code = 0;
+		
+		$_SESSION['status'] = "ACTIVE";
+		$Web_Service_URL = MERITON_API_URL.'/?hotel='.$hotel_code.'&room='.$room_no;
+
+		debugTextLogger("$room_no Starting cURL call to Meriton API ".$Web_Service_URL);
+	
+		// Init the cURL session
+		$result = postCurl($Web_Service_URL);
+		debugTextLogger($result);	
+
+		$xml=simplexml_load_string($result) or die("Error: Cannot create object");
+	
+		$check_name = $xml->Guest->LastName;
+		$check_name = trim(preg_replace('/\s\s+/', ' ', $check_name));
+		debugTextLogger($check_name);
+
+	
+		if(!empty($xml))
+		{		
+			foreach($xml as $key=>$val)
+			{
+				foreach($val as $a=>$b)
+				{
+					switch($a)
+					{
+						case "FirstNames":
+							$first_name = $b;
+							break;				
+						case "LastName":
+							$last_name = $b;
+							break;
+						case "RatePlan":
+							$rate_plan = $b;
+							break;
+						case "Arrival":
+							$arrival = $b;
+							break;
+						case "Departure":
+							$departure = $b;
+							break;
+					}
+					}
+				}
+
+				
+				if(strtoupper($last_name) == strtoupper($lname))
+				{
+					debugTextLogger("Last Name : $last_name");
+					debugTextLogger("Rate Plan : $rate_plan");
+					debugTextLogger("Arrival : $arrival");
+					debugTextLogger("Departure : $departure");
+
+					list($arrival_day, $arrival_month, $arrival_year) = explode("/", $arrival);
+					list($departure_day, $departure_month, $departure_year) = explode("/", $departure);
+
+					$arrival_year = substr($arrival_year, 0, strrpos($arrival_year, ' '));
+					$departure_year = substr($departure_year, 0, strrpos($departure_year, ' '));
+
+					$arrival_time = mktime(0, 0, 0, $arrival_month, $arrival_day, $arrival_year);
+					$departure_time = mktime(0, 0, 0,$departure_month, $departure_day,  $departure_year);
+
+					$diff = abs($departure_time  - $arrival_time);
+
+					$years = floor($diff / (365*60*60*24));
+					$months = floor(($diff - $years * 365*60*60*24) / (30*60*60*24));
+					$days = floor(($diff - $years * 365*60*60*24 - $months*30*60*60*24)/ (60*60*24));
+
+					$number_of_days = $days;
+
+					debugTextLogger("Number of Days Stay: $number_of_days");
+					debugTextLogger("Referer:  $referrer");
+		
+					$timelimit = $number_of_days."d";
+		
+					$_SESSION['last_name'] = $last_name;
+		
+					$bytes = convertToBytes($rate_plan);
+					$find_user = find_hotspot_user($mac);
+					//$find_user = find_hotspot_user($user_name);
+					debugTextLogger("FIND USER IN HOTSPOT");
+		
+					if(empty($find_user))
+					{
+						$user_list = add_user_to_hotspot($mac,$bytes,$timelimit,$mac);
+						//$user_list = add_user_to_hotspot($user_name,$bytes,$timelimit,$mac);
+						debugTextLogger("FIND USER IN HOTSPOT");						
+					}	
+		
+					$arrival = strtr($arrival, '/', '-');
+					$departure = strtr($departure, '/', '-');
+		
+						$log_arr = array(
+							"remote_addr" => $ip_addr,
+							"mac" => $mac,						
+							"user_name" => $user_name,
+							"room_no" => $room_no,
+							"first_name" => $first_name,
+							"last_name" => $last_name,
+							"rate_plan" => $rate_plan,
+							"arrival" => date("Y-m-d H:i:s",strtotime($arrival)),
+							"departure" => date("Y-m-d H:i:s",strtotime($departure)),
+							"status" => "A"
+						);	
+
+					$reply = log_hotspot_user($log_arr);
+				}
+				else
+				{
+					$logout = 0;
+					$message = "You can not be logged in at this time. Please try again.";					
+				}
+			}
 	}
 
-	if(strtoupper($last_name) == strtoupper($lname))
+	if($logout != 0)
 	{
-		debugTextLogger("Last Name : $last_name");
-		debugTextLogger("Rate Plan : $rate_plan");
-		debugTextLogger("Arrival : $arrival");
-		debugTextLogger("Departure : $departure");
-
-		list($arrival_day, $arrival_month, $arrival_year) = explode("/", $arrival);
-		list($departure_day, $departure_month, $departure_year) = explode("/", $departure);
-
-		$arrival_year = substr($arrival_year, 0, strrpos($arrival_year, ' '));
-		$departure_year = substr($departure_year, 0, strrpos($departure_year, ' '));
-
-		$arrival_time = mktime(0, 0, 0, $arrival_month, $arrival_day, $arrival_year);
-		$departure_time = mktime(0, 0, 0,$departure_month, $departure_day,  $departure_year);
-
-		$diff = abs($departure_time  - $arrival_time);
-
-		$years = floor($diff / (365*60*60*24));
-		$months = floor(($diff - $years * 365*60*60*24) / (30*60*60*24));
-		$days = floor(($diff - $years * 365*60*60*24 - $months*30*60*60*24)/ (60*60*24));
-
-		$number_of_days = $days;
-
-		debugTextLogger("Number of Days Stay: $number_of_days");
-		debugTextLogger("Referer:  $referrer");
+		$find_active_user = find_hotspot_active_user($mac);
+		//$find_active_user = find_hotspot_active_user($user_name);
+		debugTextLogger("FIND ACTIVE USER IN HOTSPOT");
+		debugTextLogger(serialize($find_active_user));		
+			
+		if(empty($find_active_user))
+		{
+			$user_list = login_to_hotspot($mac,$mac,$ip_addr);
+			//$user_list = login_to_hotspot($user_name,$mac,$ip_addr);
+			debugTextLogger("ADD ACTIVE USER IN HOTSPOT");
+			debugTextLogger(serialize($user_list));				
+			$find_active_user = find_hotspot_active_user($mac);
+			//$find_active_user = find_hotspot_active_user($user_name);
+			debugTextLogger("FIND ACTIVE USER IN HOTSPOT");
+			debugTextLogger(serialize($find_active_user));				
+		}
+			
+		$total_bytes = $find_active_user[0]['bytes-in'] + $find_user[0]['bytes-out'];
+		$remain_bytes = $find_active_user[0]['limit-bytes-total'] - $total_bytes;
 		
-		$timelimit = $number_of_days."d";
-		
-		$log_arr = array(
-						"remote_addr" => $ip_addr,
-						"mac" => $mac,						
-						"request_uri" => $referrer,
-						"room_no" => $room_no,
-						"first_name" => $first_name,
-						"last_name" => $last_name,
-						"rate_plan" => $rate_plan,
-						"arrival" => $arrival,
-						"departure" => $departure,
-						"status" => "A"
-		);
-		
-		log_hotspot_user($log_arr);
-		
-		$bytes = convertToBytes($rate_plan);
-		$user_list = add_user_to_hotspot(strtolower($last_name),$bytes,$timelimit,$mac);
-		$user_list = login_to_hotspot(strtolower($last_name),$mac,$ip_addr);
-		sleep(10);
-		$user_list = find_hotspot_active_user(strtolower($last_name));
-		$total_bytes = $user_list['bytes-in'] + $user_list['bytes-out'];
-		$remain_bytes = $user_list['limit-bytes-total'] - $total_bytes;
-		
-		if($remain_bytes <= 0)
+		if(($remain_bytes <= 500) && (!empty($find_active_user)))
 		{
 			$user_list = limit_hotspot_user($ip_addr);
+			$reduced_speed = "Your browsing speed has been reduced to 256/256 kbps";
+		}
+	
+		if(empty($find_active_user))
+		{
+			$logout = 0;
+			$message = "You can not be logged in at this time. Please try again.";
 		}
 	}
 }
 ?>				
 	</style>			
 </head>
-	<body bgcolor="#ffffff" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" onload="loadGuestDetails();autologin();" onFocus="gotFocus();" onBlur="lostFocus();">
-		<form action="disconnect.php" method="post">
+	<body bgcolor="#ffffff" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+		<form action="" method="post" name="disconnect_form">
 			<div id="jsena" style="display:'none'">
 				<table width="100%" border="0" cellpadding="0" cellspacing="0" style="height:100%;">
 					<tr>
@@ -498,9 +610,26 @@ if($result != FALSE)
 									<div class="unit whole">
 										<div class="grid">
 											<div class="notification-text">
+												<?php 
+													if($logout === 0)
+													{
+												?>
+												<label id="errormessage"><?php echo $message; ?></label>
+												<?php
+													}
+													else
+													{
+												?>
 												<label id="errormessage">You have successfully logged in.</label>
+												<?php
+													}
+												?>
 											</div>
 										</div>
+										<?php
+											if($logout != 0)
+											{
+										?>
 										<h2>Login Details</h2>
 										<hr>
 										<div class="grid">
@@ -516,12 +645,19 @@ if($result != FALSE)
 												<div class="unit two-thirds comments"><?php echo formatSizeUnits($total_bytes); ?></div>			
 											</div>			
 										</div>
+										<div class="grid">
+											<div class="unit whole comments"><?php echo $reduced_speed; ?></div>
+										</div>										
 										<div class="grid submit">
-											<div class="unit half">
-												<input type="hidden" value="<?php echo strtolower($last_name); ?>" name="last_name">										
-												<input type='submit' name='Submit' value="LOGOUT" class="buttonstyle">
+											<div class="unit half">	
+												<input type="hidden" name="mac_add" value="<?php echo $mac;?>">	
+												<input type="hidden" name="last_id" value="<?php echo $_POST['lname'];?>">	
+												<input type='submit' name='Next' value="LOGOUT" class="buttonstyle">
 											</div>
 										</div>
+										<?php
+											}
+										?>
 									</div>
 								</div>
 							</div>

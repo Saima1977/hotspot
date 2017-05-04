@@ -23,6 +23,11 @@ debugTextLogger($result);
 if($result != FALSE)
 {
 	$xml=simplexml_load_string($result) or die("Error: Cannot create object");
+	
+	if (empty($xml->getName()) && count($xml->children()) == 0)
+	{
+		debugTextLogger("EMPTY XML STRING RETURNED!");
+	}
 
 	foreach($xml as $key=>$val)
 	{
